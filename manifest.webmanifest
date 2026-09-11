@@ -1,9 +1,21 @@
 {
+  "id": "./",
   "name": "Eiram Closet",
-  "short_name": "Closet",
+  "short_name": "Eiram Closet",
   "description": "My private digital wardrobe, outfits and wishlist.",
   "start_url": "./",
+  "scope": "./",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait-primary",
   "background_color": "#f6f1e9",
-  "theme_color": "#f6f1e9"
+  "theme_color": "#f6f1e9",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
 }
