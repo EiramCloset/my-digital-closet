@@ -10,75 +10,44 @@
 </head>
 <body>
   <main class="app-shell">
-    <header class="topbar">
-      <div>
-        <p class="eyebrow">EIRAM CLOSET</p>
-        <h1 id="screenTitle">My Closet</h1>
-      </div>
-      <button class="icon-button" id="addQuick" aria-label="Add item">+</button>
-    </header>
+    <header class="topbar"><div><p class="eyebrow">EIRAM CLOSET</p><h1 id="screenTitle">My Closet</h1></div><button class="icon-button" id="addQuick" aria-label="Add item">+</button></header>
 
     <section id="closetView" class="view active">
-      <div class="hero-card">
-        <span class="pill">Local-first</span>
-        <h2>Your wardrobe, on your phone.</h2>
-        <p>Build your closet with photos, colours and notes. Your wardrobe stays on this device unless you export a backup.</p>
-        <button class="primary" data-open-form="closet">Add first item</button>
-      </div>
-      <div class="toolbar">
-        <input id="searchInput" type="search" placeholder="Search your closet" />
-        <select id="categoryFilter"><option value="all">All categories</option><option>Tops</option><option>Bottoms</option><option>Dresses</option><option>Knitwear</option><option>Jackets</option><option>Shoes</option><option>Accessories</option></select>
-      </div>
-      <div id="closetGrid" class="card-grid"></div>
-      <div id="closetEmpty" class="empty-state"><h3>No clothes yet</h3><p>Add a garment to begin.</p></div>
+      <div class="hero-card"><span class="pill">Local-first</span><h2>Your wardrobe, on your phone.</h2><p>Build your closet with photos, colours and notes. Your wardrobe stays on this device unless you export a backup.</p><button class="primary" data-open-form="closet">Add first item</button></div>
+      <div class="toolbar"><input id="searchInput" type="search" placeholder="Search your closet" /><select id="categoryFilter"><option value="all">All categories</option><option>Tops</option><option>Bottoms</option><option>Dresses</option><option>Knitwear</option><option>Jackets</option><option>Shoes</option><option>Accessories</option></select></div>
+      <div id="closetGrid" class="card-grid"></div><div id="closetEmpty" class="empty-state"><h3>No clothes yet</h3><p>Add a garment to begin.</p></div>
     </section>
 
-    <section id="outfitsView" class="view">
-      <div class="section-card"><span class="pill">Outfit builder</span><h2>Build combinations from what you own</h2><p>Select one garment and find pieces in your closet that work with it.</p><label>Start with<select id="outfitSeed"><option value="">Choose an item</option></select></label><button class="primary" id="buildOutfit">Find combinations</button></div>
-      <div id="outfitResults" class="recommendations"></div>
-    </section>
+    <section id="outfitsView" class="view"><div class="section-card"><span class="pill">Outfit builder</span><h2>Build combinations from what you own</h2><p>Select one garment and find pieces in your closet that work with it.</p><label>Start with<select id="outfitSeed"><option value="">Choose an item</option></select></label><button class="primary" id="buildOutfit">Find combinations</button></div><div id="outfitResults" class="recommendations"></div></section>
 
-    <section id="colourView" class="view">
-      <div class="section-card"><span class="pill">Japanese colour study</span><h2>Wada-inspired combinations</h2><p>Choose a garment to explore curated colour directions inspired by Sanzo Wada's historic colour-combination work.</p><label>Garment<select id="wadaSeed"><option value="">Choose an item</option></select></label><button class="primary" id="showWada">Show combinations</button></div>
-      <div id="wadaResults" class="recommendations"></div>
-      <p class="fine-print">This first version uses an original curated matching layer rather than reproducing the historical book. The full palette engine can be expanded later.</p>
-    </section>
+    <section id="colourView" class="view"><div class="section-card"><span class="pill">Japanese colour study</span><h2>Wada-inspired combinations</h2><p>Choose a garment to explore curated colour directions inspired by Sanzo Wada's historic colour-combination work.</p><label>Garment<select id="wadaSeed"><option value="">Choose an item</option></select></label><button class="primary" id="showWada">Show combinations</button></div><div id="wadaResults" class="recommendations"></div><p class="fine-print">This first version uses an original curated matching layer rather than reproducing the historical book. The full palette engine can be expanded later.</p></section>
 
-    <section id="wishlistView" class="view">
-      <div class="section-heading"><div><span class="pill">Shopping</span><h2>Wishlist</h2></div><button class="secondary" data-open-form="wishlist">+ Add</button></div>
-      <div id="wishlistGrid" class="card-grid"></div>
-      <div id="wishlistEmpty" class="empty-state"><h3>Your wishlist is empty</h3><p>Save things you like and the price you would buy them at.</p></div>
-    </section>
+    <section id="wishlistView" class="view"><div class="section-heading"><div><span class="pill">Shopping</span><h2>Wishlist</h2></div><button class="secondary" data-open-form="wishlist">+ Add</button></div><div id="wishlistGrid" class="card-grid"></div><div id="wishlistEmpty" class="empty-state"><h3>Your wishlist is empty</h3><p>Save things you like and the price you would buy them at.</p></div></section>
 
-    <section id="settingsView" class="view">
-      <div class="section-card"><span class="pill">Privacy & backup</span><h2>Your data belongs to you</h2><p>Export your closet and wishlist to a backup file, or restore one later.</p><div class="button-stack"><button class="primary" id="exportBackup">Export backup</button><label class="secondary file-button">Restore backup<input type="file" id="importBackup" accept="application/json" hidden /></label></div></div>
-      <div class="section-card subtle"><h3>Family-ready later</h3><p>Items already include an owner field internally, so children and partner profiles can be added without rebuilding the app.</p></div>
-    </section>
+    <section id="settingsView" class="view"><div class="section-card"><span class="pill">Privacy & backup</span><h2>Your data belongs to you</h2><p>Export your closet and wishlist to a backup file, or restore one later.</p><div class="button-stack"><button class="primary" id="exportBackup">Export backup</button><label class="secondary file-button">Restore backup<input type="file" id="importBackup" accept="application/json" hidden /></label></div></div><div class="section-card subtle"><h3>Family-ready later</h3><p>Items already include an owner field internally, so children and partner profiles can be added without rebuilding the app.</p></div></section>
   </main>
 
-  <nav class="bottom-nav">
-    <button class="nav-item active" data-view="closet"><span>▦</span><small>Closet</small></button>
-    <button class="nav-item" data-view="outfits"><span>◩</span><small>Outfits</small></button>
-    <button class="nav-item" data-view="colour"><span>◉</span><small>Colours</small></button>
-    <button class="nav-item" data-view="wishlist"><span>♡</span><small>Wishlist</small></button>
-    <button class="nav-item" data-view="settings"><span>⚙</span><small>Settings</small></button>
-  </nav>
+  <nav class="bottom-nav"><button class="nav-item active" data-view="closet"><span>▦</span><small>Closet</small></button><button class="nav-item" data-view="outfits"><span>◩</span><small>Outfits</small></button><button class="nav-item" data-view="colour"><span>◉</span><small>Colours</small></button><button class="nav-item" data-view="wishlist"><span>♡</span><small>Wishlist</small></button><button class="nav-item" data-view="settings"><span>⚙</span><small>Settings</small></button></nav>
 
   <dialog id="itemDialog">
     <form id="itemForm" method="dialog">
       <div class="dialog-header"><div><p class="eyebrow" id="formEyebrow">ADD TO CLOSET</p><h2 id="formTitle">New item</h2></div><button type="button" class="icon-button" id="closeDialog">×</button></div>
-      <input type="hidden" id="itemMode" value="closet" />
-      <input type="hidden" id="editId" value="" />
-      <label class="photo-picker">Photo<input id="itemPhoto" type="file" accept="image/*" capture="environment" /><span id="photoHint">Tap to take or choose a photo</span><img id="photoPreview" alt="Preview" /></label>
+      <input type="hidden" id="itemMode" value="closet" /><input type="hidden" id="editId" value="" />
+      <div class="photo-section">
+        <div class="photo-picker" id="photoPicker"><span id="photoHint">No photo selected yet</span><img id="photoPreview" alt="Preview" /></div>
+        <div class="photo-actions">
+          <label class="secondary photo-action">Choose from gallery / files<input id="galleryPhoto" type="file" accept="image/*" hidden /></label>
+          <label class="secondary photo-action">Take photo<input id="cameraPhoto" type="file" accept="image/*" capture="environment" hidden /></label>
+          <button type="button" class="ghost danger" id="removePhoto">Remove photo</button>
+        </div>
+      </div>
       <div class="form-grid">
         <label class="full">Item name<input id="itemName" required placeholder="e.g. Navy straight-leg trousers" /></label>
         <label>Category<select id="itemCategory" required><option value="">Choose</option><option>Tops</option><option>Bottoms</option><option>Dresses</option><option>Knitwear</option><option>Jackets</option><option>Shoes</option><option>Accessories</option></select></label>
         <label>Colour<input id="itemColour" placeholder="e.g. navy" /></label>
         <label>Season<select id="itemSeason"><option>All-season</option><option>Spring</option><option>Summer</option><option>Autumn</option><option>Winter</option><option>Autumn/Winter</option><option>Spring/Summer</option></select></label>
-        <label>Brand<input id="itemBrand" /></label>
-        <label>Size<input id="itemSize" /></label>
-        <label id="priceWrap">Current price<input id="itemPrice" type="number" step="0.01" min="0" /></label>
-        <label id="targetWrap">Target price<input id="targetPrice" type="number" step="0.01" min="0" /></label>
+        <label>Brand<input id="itemBrand" /></label><label>Size<input id="itemSize" /></label>
+        <label id="priceWrap">Current price<input id="itemPrice" type="number" step="0.01" min="0" /></label><label id="targetWrap">Target price<input id="targetPrice" type="number" step="0.01" min="0" /></label>
         <label id="linkWrap" class="full">Product link<input id="itemLink" type="url" placeholder="https://..." /></label>
         <label class="full">Notes<textarea id="itemNotes" rows="3" placeholder="Fit, fabric, styling ideas..."></textarea></label>
       </div>
