@@ -48,7 +48,12 @@
   }
   const originalMake=window.makeOutfits;
   window.makeOutfits=function(seed){
-    const ideas=originalMake(seed);ensureState();const occasion=document.getElementById('outfitOccasion')?.value||state.preferences.occasion||'Everyday';
+    let ideas=originalMake(seed);
+    if(seed && seed.category==='Shoes'){
+      ideas=ideas.map(look=>look.filter(item=>item.id===seed.id || item.category!=='Shoes'));
+    }
+    ensureState();
+    const occasion=document.getElementById('outfitOccasion')?.value||state.preferences.occasion||'Everyday';
     return ideas.map(look=>({look,score:scoreLook(look)+look.reduce((n,i)=>n+occasionBonus(i,occasion),0)})).sort((a,b)=>b.score-a.score).map(x=>x.look);
   };
   const originalRender=window.renderOutfits;
