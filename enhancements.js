@@ -1,5 +1,5 @@
 (() => {
-  function ensureState(){if(!state.savedOutfits)state.savedOutfits=[];if(!state.feedback)state.feedback={liked:[],disliked:[]};if(!state.preferences)state.preferences={occasion:'Everyday'};if(!state.preferences.recentLooks)state.preferences.recentLooks=[];if(!state.preferences.recentItems)state.preferences.recentItems=[];}
+  function ensureState(){if(!state.savedOutfits)state.savedOutfits=[];if(!state.feedback)state.feedback={liked:[],disliked:[]};if(!state.preferences)state.preferences={occasion:'Everyday'};if(!state.preferences.recentLooks)state.preferences.recentLooks=[];if(!state.preferences.recentItems)state.preferences.recentItems=[];if(!state.preferences.itemHistory)state.preferences.itemHistory=[];}
   function keyForLook(look){return look.map(x=>x.id).sort().join('|')}
   function scoreLook(look){ensureState();const key=keyForLook(look);let s=0;if(state.feedback.liked.includes(key))s+=20;if(state.feedback.disliked.includes(key))s-=30;const likedItems=new Set(state.feedback.liked.flatMap(k=>k.split('|')));const dislikedItems=new Set(state.feedback.disliked.flatMap(k=>k.split('|')));look.forEach(x=>{if(likedItems.has(x.id))s+=2;if(dislikedItems.has(x.id))s-=1});return s;}
   function occasionBonus(item,occasion){const text=((item.notes||'')+' '+(item.category||'')+' '+(item.brand||'')).toLowerCase();if(occasion==='Work'&&/(blazer|shirt|trouser|smart|work|loafer)/.test(text))return 2;if(occasion==='Evening'&&/(dress|heel|silk|satin|evening|party)/.test(text))return 2;if(occasion==='Holiday'&&/(linen|sandal|summer|holiday|beach)/.test(text))return 2;if(occasion==='Weekend'&&/(jean|denim|sneaker|casual|knit)/.test(text))return 2;return 0;}
@@ -12,7 +12,60 @@
   const originalWadaMatches=window.wardrobeMatchesForPalette;window.wardrobeMatchesForPalette=function(seed,palette){const matches=originalWadaMatches(seed,palette);return seed&&seed.category==='Shoes'?matches.filter(item=>item.category!=='Shoes'):matches;};
   function cleanLook(seed,look){const seen=new Set(),roles=new Set(),out=[];for(const item of look){if(!item||seen.has(item.id))continue;const role=categoryRole(item.category);if(role==='shoes'&&roles.has('shoes'))continue;if(role==='dress'&&(roles.has('top')||roles.has('bottom')))continue;if((role==='top'||role==='bottom')&&roles.has('dress'))continue;if(role==='layer'&&roles.has('layer'))continue;seen.add(item.id);roles.add(role);out.push(item)}if(seed&&!out.some(x=>x.id===seed.id)){const sr=categoryRole(seed.category);if(sr==='shoes'){for(let i=out.length-1;i>=0;i--)if(categoryRole(out[i].category)==='shoes')out.splice(i,1)}if(sr==='dress'){for(let i=out.length-1;i>=0;i--)if(['top','bottom'].includes(categoryRole(out[i].category)))out.splice(i,1)}out.unshift(seed)}return out;}
   function pairwiseScore(look){let s=0;for(let i=0;i<look.length;i++)for(let j=i+1;j<look.length;j++)s+=compatible(look[i].colour,look[j].colour)?1:-1;return s;}
-  const originalMake=window.makeOutfits;window.makeOutfits=function(seed){ensureState();const occasion=document.getElementById('outfitOccasion')?.value||state.preferences.occasion||'Everyday';let ideas=originalMake(seed).map(look=>cleanLook(seed,look)).filter(look=>look.length>1);const unique=new Map(ideas.map(look=>[keyForLook(look),look]));ideas=[...unique.values()];return ideas.map(look=>{const key=keyForLook(look);const recentIndex=state.preferences.recentLooks.indexOf(key);const varietyPenalty=recentIndex<0?0:Math.max(1,6-recentIndex);const itemPenalty=look.reduce((total,item)=>{const idx=state.preferences.recentItems.indexOf(item.id);return total+(idx<0?0:Math.max(.5,4-(idx*.35)))},0);const score=scoreLook(look)+pairwiseScore(look)+look.reduce((n,i)=>n+occasionBonus(i,occasion),0)-varietyPenalty-itemPenalty;return{look,score}}).sort((a,b)=>b.score-a.score).map(x=>x.look).slice(0,3);};
-  const originalRender=window.renderOutfits;window.renderOutfits=function(seed){originalRender(seed);ensureState();const occasion=document.getElementById('outfitOccasion')?.value||state.preferences.occasion||'Everyday';const cards=[...document.querySelectorAll('#outfitResults .outfit-card')];const ideas=makeOutfits(seed);const shown=ideas.map(keyForLook);if(shown.length){state.preferences.recentLooks=[...shown,...state.preferences.recentLooks.filter(k=>!shown.includes(k))].slice(0,12);const itemIds=ideas.flatMap(look=>look.map(item=>item.id));const uniqueItems=[...new Set(itemIds)];state.preferences.recentItems=[...uniqueItems,...state.preferences.recentItems.filter(id=>!uniqueItems.includes(id))].slice(0,24);dbSet('state',state).catch(()=>{})}cards.forEach((card,i)=>{const look=ideas[i];if(!look)return;const key=keyForLook(look),liked=state.feedback.liked.includes(key),disliked=state.feedback.disliked.includes(key);const actions=document.createElement('div');actions.className='outfit-actions';actions.innerHTML=`<button class="secondary save-look">Save</button><button class="secondary like-look" aria-pressed="${liked}">${liked?'✓ Liked':'👍 Like'}</button><button class="secondary dislike-look" aria-pressed="${disliked}">${disliked?'✓ Disliked':'👎 Dislike'}</button>`;card.appendChild(actions);const like=actions.querySelector('.like-look'),dislike=actions.querySelector('.dislike-look');if(liked)like.style.outline='3px solid currentColor';if(disliked)dislike.style.outline='3px solid currentColor';actions.querySelector('.save-look').onclick=async()=>{if(!state.savedOutfits.some(o=>keyForLook(o.itemIds.map(id=>state.closet.find(x=>x.id===id)).filter(Boolean))===key)){state.savedOutfits.unshift({id:uid(),itemIds:look.map(x=>x.id),occasion,createdAt:new Date().toISOString()});await save();renderSaved();}};like.onclick=async()=>{if(liked){state.feedback.liked=state.feedback.liked.filter(x=>x!==key)}else{state.feedback.liked=[...new Set([...state.feedback.liked,key])];state.feedback.disliked=state.feedback.disliked.filter(x=>x!==key)}await save();renderOutfits(seed)};dislike.onclick=async()=>{if(disliked){state.feedback.disliked=state.feedback.disliked.filter(x=>x!==key)}else{state.feedback.disliked=[...new Set([...state.feedback.disliked,key])];state.feedback.liked=state.feedback.liked.filter(x=>x!==key)}await save();renderOutfits(seed)};});};
+  function candidatePool(seed){
+    const role=categoryRole(seed.category);
+    const tops=state.closet.filter(x=>x.id!==seed.id&&categoryRole(x.category)==='top').sort((a,b)=>scoreItem(seed,b)-scoreItem(seed,a)).slice(0,8);
+    const bottoms=state.closet.filter(x=>x.id!==seed.id&&categoryRole(x.category)==='bottom').sort((a,b)=>scoreItem(seed,b)-scoreItem(seed,a)).slice(0,8);
+    const dresses=state.closet.filter(x=>x.id!==seed.id&&categoryRole(x.category)==='dress').sort((a,b)=>scoreItem(seed,b)-scoreItem(seed,a)).slice(0,6);
+    const layers=state.closet.filter(x=>x.id!==seed.id&&categoryRole(x.category)==='layer').sort((a,b)=>scoreItem(seed,b)-scoreItem(seed,a)).slice(0,6);
+    const shoes=state.closet.filter(x=>x.id!==seed.id&&categoryRole(x.category)==='shoes').sort((a,b)=>scoreItem(seed,b)-scoreItem(seed,a)).slice(0,6);
+    const accessories=state.closet.filter(x=>x.id!==seed.id&&categoryRole(x.category)==='accessory').sort((a,b)=>scoreItem(seed,b)-scoreItem(seed,a)).slice(0,4);
+    const ideas=[];
+    const layerOpts=[null,...layers.slice(0,4)],shoeOpts=[null,...shoes.slice(0,4)],accOpts=[null,...accessories.slice(0,2)];
+    const add=look=>{const cleaned=cleanLook(seed,look.filter(Boolean));if(cleaned.length>1)ideas.push(cleaned)};
+    if(role==='dress'){
+      for(const l of layerOpts)for(const s of shoeOpts)for(const a of accOpts)add([seed,l,s,a]);
+    }else{
+      const topOpts=role==='top'?[seed]:tops.slice(0,6);
+      const bottomOpts=role==='bottom'?[seed]:bottoms.slice(0,6);
+      const useLayers=role==='layer'?[seed]:layerOpts;
+      const useShoes=role==='shoes'?[seed]:shoeOpts;
+      const useAcc=role==='accessory'?[seed]:accOpts;
+      for(const t of topOpts)for(const b of bottomOpts)for(const l of useLayers)for(const s of useShoes)for(const a of useAcc)add([t,b,l,s,a]);
+      if(['layer','shoes','accessory'].includes(role)){
+        for(const d of dresses.slice(0,5))for(const l of useLayers)for(const s of useShoes)for(const a of useAcc)add([d,l,s,a]);
+      }
+    }
+    return [...new Map(ideas.map(look=>[keyForLook(look),look])).values()];
+  }
+  window.makeOutfits=function(seed){
+    ensureState();
+    const occasion=document.getElementById('outfitOccasion')?.value||state.preferences.occasion||'Everyday';
+    let ideas=candidatePool(seed).filter(look=>!state.feedback.disliked.includes(keyForLook(look)));
+    if(!ideas.length)return[];
+    const history=state.preferences.itemHistory||[];
+    const recentSet=new Set(state.preferences.recentLooks.slice(0,6));
+    const scored=ideas.map(look=>{
+      const key=keyForLook(look);
+      const repeatCount=look.reduce((n,item)=>n+history.filter(id=>id===item.id).length,0);
+      const recentLookPenalty=recentSet.has(key)?50:0;
+      const itemPenalty=repeatCount*2.5;
+      const likedBonus=state.feedback.liked.includes(key)?18:0;
+      const score=likedBonus+scoreLook(look)+pairwiseScore(look)+look.reduce((n,i)=>n+occasionBonus(i,occasion),0)-recentLookPenalty-itemPenalty;
+      return{look,score};
+    }).sort((a,b)=>b.score-a.score);
+    const selected=[];
+    for(const entry of scored){
+      if(selected.length>=3)break;
+      const overlaps=selected.some(chosen=>{
+        const a=new Set(chosen.map(x=>x.id)),shared=entry.look.filter(x=>a.has(x.id)).length;
+        return shared>=Math.max(2,Math.min(chosen.length,entry.look.length)-1);
+      });
+      if(!overlaps)selected.push(entry.look);
+    }
+    if(selected.length<3)for(const entry of scored){if(selected.length>=3)break;if(!selected.some(x=>keyForLook(x)===keyForLook(entry.look)))selected.push(entry.look)}
+    return selected.slice(0,3);
+  };
+  const originalRender=window.renderOutfits;window.renderOutfits=function(seed){originalRender(seed);ensureState();const occasion=document.getElementById('outfitOccasion')?.value||state.preferences.occasion||'Everyday';const cards=[...document.querySelectorAll('#outfitResults .outfit-card')];const ideas=makeOutfits(seed);const shown=ideas.map(keyForLook);if(shown.length){state.preferences.recentLooks=[...shown,...state.preferences.recentLooks.filter(k=>!shown.includes(k))].slice(0,12);const itemIds=ideas.flatMap(look=>look.map(item=>item.id));const uniqueItems=[...new Set(itemIds)];state.preferences.recentItems=[...uniqueItems,...state.preferences.recentItems.filter(id=>!uniqueItems.includes(id))].slice(0,24);state.preferences.itemHistory=[...itemIds,...state.preferences.itemHistory].slice(0,60);dbSet('state',state).catch(()=>{})}cards.forEach((card,i)=>{const look=ideas[i];if(!look)return;const key=keyForLook(look),liked=state.feedback.liked.includes(key),disliked=state.feedback.disliked.includes(key);const actions=document.createElement('div');actions.className='outfit-actions';actions.innerHTML=`<button class="secondary save-look">Save</button><button class="secondary like-look" aria-pressed="${liked}">${liked?'✓ Liked':'👍 Like'}</button><button class="secondary dislike-look" aria-pressed="${disliked}">${disliked?'✓ Disliked':'👎 Dislike'}</button>`;card.appendChild(actions);const like=actions.querySelector('.like-look'),dislike=actions.querySelector('.dislike-look');if(liked)like.style.outline='3px solid currentColor';if(disliked)dislike.style.outline='3px solid currentColor';actions.querySelector('.save-look').onclick=async()=>{if(!state.savedOutfits.some(o=>keyForLook(o.itemIds.map(id=>state.closet.find(x=>x.id===id)).filter(Boolean))===key)){state.savedOutfits.unshift({id:uid(),itemIds:look.map(x=>x.id),occasion,createdAt:new Date().toISOString()});await save();renderSaved();}};like.onclick=async()=>{if(liked){state.feedback.liked=state.feedback.liked.filter(x=>x!==key)}else{state.feedback.liked=[...new Set([...state.feedback.liked,key])];state.feedback.disliked=state.feedback.disliked.filter(x=>x!==key)}await save();renderOutfits(seed)};dislike.onclick=async()=>{if(disliked){state.feedback.disliked=state.feedback.disliked.filter(x=>x!==key)}else{state.feedback.disliked=[...new Set([...state.feedback.disliked,key])];state.feedback.liked=state.feedback.liked.filter(x=>x!==key)}await save();renderOutfits(seed)};});};
   const originalRenderAll=window.renderAll;window.renderAll=function(){originalRenderAll();renderSaved()};injectUI();injectThemeUI();ensureState();if(document.getElementById('outfitOccasion'))document.getElementById('outfitOccasion').value=state.preferences.occasion||'Everyday';renderSaved();applyTheme(localStorage.getItem('eiram-theme')||'light');
 })();
