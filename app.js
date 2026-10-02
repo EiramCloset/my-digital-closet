@@ -58,5 +58,5 @@ showWada.addEventListener('click',()=>{const seed=state.closet.find(x=>x.id===wa
 exportBackup.addEventListener('click',()=>{const blob=new Blob([JSON.stringify({version:2,storage:'indexeddb',exportedAt:new Date().toISOString(),data:state},null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='eiram-closet-backup.json';a.click();URL.revokeObjectURL(a.href)});
 importBackup.addEventListener('change',e=>{const f=e.target.files?.[0];if(!f)return;const r=new FileReader();r.onload=async()=>{try{const x=JSON.parse(r.result);if(!x.data)throw new Error();state=x.data;await save();alert('Backup restored.')}catch{alert('That backup file could not be read.')}};r.readAsText(f)});
 if('storage' in navigator&&'persist' in navigator.storage)navigator.storage.persist().catch(()=>{});
-if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
+if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});}
 load();
