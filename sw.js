@@ -1,5 +1,5 @@
-const CACHE='eiram-closet-v22';
-const ASSETS=['./','./index.html','./styles.css?v=22','./app.js?v=22','./enhancements.js?v=22','./manifest.webmanifest?v=22','./icon.svg?v=22'];
+const CACHE='eiram-closet-v23';
+const ASSETS=['./','./index.html','./styles.css?v=23','./app.js?v=23','./enhancements.js?v=23','./manifest.webmanifest?v=23','./icon.svg?v=23'];
 self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)))});
 self.addEventListener('activate',e=>{e.waitUntil(Promise.all([caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))),self.clients.claim()]))});
 self.addEventListener('fetch',e=>e.respondWith(fetch(e.request).then(r=>{const copy=r.clone();caches.open(CACHE).then(c=>c.put(e.request,copy));return r}).catch(()=>caches.match(e.request))));
