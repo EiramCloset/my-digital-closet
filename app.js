@@ -4,8 +4,8 @@ const DB_VERSION=1;
 const STORE='app';
 let state={closet:[],wishlist:[]};
 let currentPhoto='';
-const views=['closet','outfits','colour','wishlist','settings'];
-const titleMap={closet:'My Closet',outfits:'Outfits',colour:'Colour Combinations',wishlist:'Wishlist',settings:'Settings'};
+const views=['closet','outfits','colour','inspiration','wishlist','settings'];
+const titleMap={closet:'My Closet',outfits:'Outfits',colour:'Colour Combinations',inspiration:'Inspiration',wishlist:'Wishlist',settings:'Settings'};
 const wadaPalettes=[
 {name:'Deep blue + warm ochre',keys:['navy','blue','indigo','denim'],colors:['#24334a','#c49045','#e7d8b1'],labels:['Deep blue','Warm ochre','Soft cream']},
 {name:'Olive + dusty rose',keys:['olive','green','khaki','sage','moss'],colors:['#6f7154','#c8928d','#ead7c7'],labels:['Olive','Dusty rose','Warm beige']},
